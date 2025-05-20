@@ -1,8 +1,8 @@
-use std::alloc::{alloc, dealloc, Layout};
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 
 use libc::{
-    getifaddrs, strlen, c_char, ifaddrs, sockaddr_in, sockaddr_in6, AF_INET, AF_INET6, IFF_LOOPBACK,
+    getifaddrs, freeifaddrs, strlen, c_char, ifaddrs, sockaddr_in, sockaddr_in6, AF_INET, AF_INET6,
+    IFF_LOOPBACK,
 };
 
 use crate::Error;
@@ -81,8 +81,7 @@ impl AfInetInfo {
 // list_afiinet_netifas and local_ip,
 pub(crate) fn list_afinet_netifas_info() -> Result<Vec<AfInetInfo>, Error> {
     unsafe {
-        let layout = Layout::new::<IfAddrsPtr>();
-        let ptr = alloc(layout);
+        let ptr: *mut ifaddrs = std::ptr::null_mut();
         let myaddr = ptr as IfAddrsPtr;
         let getifaddrs_result = getifaddrs(myaddr);
 
@@ -152,7 +151,7 @@ pub(crate) fn list_afinet_netifas_info() -> Result<Vec<AfInetInfo>, Error> {
             }
         }
 
-        dealloc(ptr, layout);
+        freeifaddrs(ptr);
         Ok(interfaces)
     }
 }
