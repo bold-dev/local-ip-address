@@ -81,9 +81,8 @@ impl AfInetInfo {
 // list_afiinet_netifas and local_ip,
 pub(crate) fn list_afinet_netifas_info() -> Result<Vec<AfInetInfo>, Error> {
     unsafe {
-        let ptr: *mut ifaddrs = std::ptr::null_mut();
-        let myaddr = ptr as IfAddrsPtr;
-        let getifaddrs_result = getifaddrs(myaddr);
+        let mut ptr: *mut ifaddrs = std::ptr::null_mut();
+        let getifaddrs_result = getifaddrs(&mut ptr);
 
         if getifaddrs_result != 0 {
             // an error occurred on getifaddrs
@@ -94,7 +93,7 @@ pub(crate) fn list_afinet_netifas_info() -> Result<Vec<AfInetInfo>, Error> {
         }
 
         let mut interfaces: Vec<AfInetInfo> = Vec::new();
-        let ifa = myaddr;
+        let ifa = ptr as IfAddrsPtr;
 
         // An instance of `ifaddrs` is build on top of a linked list where
         // `ifaddrs.ifa_next` represent the next node in the list.
