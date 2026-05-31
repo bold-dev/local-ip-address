@@ -257,7 +257,7 @@ fn format_error_code(error_code: WIN32_ERROR) -> String {
     let error_message = String::from_utf16_lossy(slice);
 
     unsafe {
-        LocalFree(&mut wide_ptr as *mut _ as *mut _);
+        LocalFree(wide_ptr as _);
     }
 
     error_message
