@@ -253,14 +253,18 @@ fn format_error_code(error_code: WIN32_ERROR) -> String {
         unsafe { GetLastError() }
     );
 
-    let slice = unsafe { slice::from_raw_parts(wide_ptr, len.try_into().unwrap()) };
-    let error_message = String::from_utf16_lossy(slice);
+    if len > 0 {
+        let slice = unsafe { slice::from_raw_parts(wide_ptr, len.try_into().unwrap()) };
+        let error_message = String::from_utf16_lossy(slice);
 
-    unsafe {
-        LocalFree(wide_ptr as _);
+        unsafe {
+            LocalFree(wide_ptr as _);
+        }
+
+        error_message
+    } else {
+        String::new()
     }
-
-    error_message
 }
 
 /// Wrapper type around a pointer to a Windows API structure.
